@@ -1,6 +1,7 @@
 <?php
 
-require_once __DIR__ . '/../../Domain/Entity/Post.php';;
+require_once __DIR__ . '/../../Domain/Entity/Post.php';
+require_once __DIR__ . '/../../Domain/Entity/User.php';
 
 class PostSerializer /*implements SerializerInterface*/
 {
@@ -8,7 +9,7 @@ class PostSerializer /*implements SerializerInterface*/
     {
         if(!empty($arrayFromDb)) {
             return new Post(
-                $arrayFromDb['id_post'], 
+                $arrayFromDb['post_id'], 
                 $user, 
                 $arrayFromDb['content'], 
                 $arrayFromDb['creation_date'], 
@@ -24,6 +25,8 @@ class PostSerializer /*implements SerializerInterface*/
             return [
                 "id" => $post->getId(),
                 "user_id" => $post->getUser()->getId(),
+                "username" => $post->getUser()->getUsername(),
+                "role" => $post->getUser()->getRole(),
                 "content" => $post->getContent(),
                 "creation_date" => $post->getCreationDate(),
                 "delete_date" => $post->isDeleted()

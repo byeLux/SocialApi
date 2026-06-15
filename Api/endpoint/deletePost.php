@@ -1,4 +1,7 @@
 <?php
+if (!defined('ROOT_PATH')) {
+    define('ROOT_PATH', dirname(__DIR__, 2));
+}
 require_once ROOT_PATH . '/bootstrap.php';
 require_once ROOT_PATH . '/Infrastructure/Repository/PostRepository.php';
 require_once ROOT_PATH . '/Infrastructure/Repository/UserRepository.php';

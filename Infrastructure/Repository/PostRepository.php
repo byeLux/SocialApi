@@ -53,11 +53,11 @@ class PostRepository
 
         $statement = $this->dbConnector->prepare("
             SELECT
-                u.id AS id_user,
+                u.id AS user_id,
                 u.username,
                 u.password,
                 u.role,
-                p.id AS id_post,
+                p.id AS post_id,
                 p.user_id AS post_user_id,
                 p.content,
                 p.creation_date,
@@ -99,11 +99,11 @@ class PostRepository
         $statement = $this->dbConnector->prepare("
 
             SELECT 
-                u.id AS id_user,
+                u.id AS user_id,
                 u.username,
                 u.password,
                 u.role,
-                p.id AS id_post,
+                p.id AS post_id,
                 p.user_id AS post_user_id,
                 p.content,
                 p.creation_date,
@@ -153,11 +153,11 @@ class PostRepository
 
         $statement = $this->dbConnector->prepare('
             SELECT 
-                u.id AS id_user,
+                u.id AS user_id,
                 u.username,
                 u.password,
                 u.role,
-                p.id AS id_post,
+                p.id AS post_id,
                 p.user_id AS post_user_id,
                 p.content,
                 p.creation_date,

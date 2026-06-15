@@ -19,7 +19,7 @@ class UserRepository {
     {
         $statement = $this->dbConnector->prepare("
             SELECT 
-                id AS id_user, 
+                id AS user_id, 
                 password, 
                 role, 
                 username 
@@ -44,7 +44,7 @@ class UserRepository {
     {
         $statement = $this->dbConnector->prepare("
             SELECT 
-                id AS id_user, 
+                id AS user_id, 
                 password, 
                 role, 
                 username
