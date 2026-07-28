@@ -48,7 +48,7 @@ $userId = $tokenManager->getId($token);
 $userRepository = new UserRepository();
 $role = $userRepository->getRoleByUserId($userId);
 
-if($role !== 'admin') {
+if($role === 'user') {
     http_response_code(403);
     echo json_encode([
         'error' => 'forbidden'
