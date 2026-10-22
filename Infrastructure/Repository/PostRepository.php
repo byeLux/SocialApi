@@ -3,8 +3,8 @@
 require_once ROOT_PATH . '/Infrastructure/Persistence/DbConnector.php';
 require_once __DIR__ . '/../../Domain/Entity/Post.php';
 require_once __DIR__ . '/../../Domain/Entity/User.php';
-require_once __DIR__ . '/PostSerializer.php';
-require_once __DIR__ . '/UserSerializer.php';
+require_once __DIR__ . '/../Serializers/PostSerializer.php';
+require_once __DIR__ . '/../Serializers/UserSerializer.php';
  
 class PostRepository 
 {

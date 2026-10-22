@@ -23,13 +23,13 @@ if(!is_array($post)) {
 $username = trim($post['username'] ?? '');
 $password = $post['password'] ?? '';
 
-if ($username === '') {
+if (!$username || $username === '') {
     http_response_code(400);
     echo json_encode(['error' => 'missing_username']);
     exit;
 }
 
-if ($password === '') {
+if (!$password || $password === '') {
     http_response_code(400);
     echo json_encode(['error' => 'missing_password']);
     exit;
@@ -37,7 +37,7 @@ if ($password === '') {
 
 $userRepository = new UserRepository();
 $user = $userRepository->findOneByUsername($username);
-$hash = $user ? $user->getPassword() : '$2a$12$spQVwBY1PNFaoBe5BmESB.fMX4JYGhd7ETA8w8ILKsMgKplkBnRQi';
+$hash = $user ? $user->getPassword() : null;
 if (!password_verify($password, $hash) || $user === null) {
     http_response_code(401);
     echo json_encode(['error' => 'invalid_credentials']);

@@ -5,7 +5,7 @@ if (!defined('ROOT_PATH')) {
 require_once ROOT_PATH . '/bootstrap.php';
 require_once ROOT_PATH . '/Infrastructure/Repository/PostRepository.php';
 require_once ROOT_PATH . '/Infrastructure/Repository/UserRepository.php';
-require_once ROOT_PATH . '/Infrastructure/Repository/UserSerializer.php';
+require_once ROOT_PATH . '/Infrastructure/Serializers/UserSerializer.php';
 require_once ROOT_PATH . '/Api/middleware/TokenManager.php';
 
 header('Content-Type: application/json');

@@ -2,8 +2,9 @@
 
 require_once __DIR__ . '/../../Domain/Entity/Post.php';
 require_once __DIR__ . '/../../Domain/Entity/User.php';
+require_once __DIR__ . '/../../Domain/Interfaces/Serializers/IPostSerializer.php';
 
-class PostSerializer /*implements SerializerInterface*/
+class PostSerializer implements IPostSerializer
 {
     public function deserialize(array $arrayFromDb, User $user): ?Post
     {

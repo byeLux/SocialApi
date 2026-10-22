@@ -5,7 +5,7 @@ require_once ROOT_PATH . '/bootstrap.php';
 require_once ROOT_PATH . '/Infrastructure/Persistence/DbConnector.php';
 require_once ROOT_PATH . '/Api/middleware/TokenManager.php';  // ← nota: 'middleware' minuscolo
 require_once ROOT_PATH . '/Infrastructure/Repository/PostRepository.php';
-require_once ROOT_PATH . '/Infrastructure/Repository/PostSerializer.php';
+require_once ROOT_PATH . '/Infrastructure/Serializers/PostSerializer.php';
 require_once ROOT_PATH . '/Domain/Entity/Post.php';
 
 header('Content-Type: application/json');

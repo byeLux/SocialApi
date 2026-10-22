@@ -2,7 +2,7 @@
 
 require_once ROOT_PATH . '/Infrastructure/Persistence/DbConnector.php';
 require_once __DIR__ . '/../../Domain/Entity/User.php';
-require_once __DIR__ . '/UserSerializer.php';
+require_once __DIR__ . '/../Serializers/UserSerializer.php';
  
 class UserRepository {
 
@@ -33,9 +33,7 @@ class UserRepository {
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if($result) {
             $user = $this->userSerializer->deserialize($result);
-            if($user != null) {
-                return $user;
-            }
+            if($user) return $user;
         }
         return null;
     }
@@ -58,9 +56,7 @@ class UserRepository {
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if($result) {
             $user = $this->userSerializer->deserialize($result);
-            if($user != null) {
-                return $user;
-            }
+            if($user) return $user;
         }
         return null;
     }

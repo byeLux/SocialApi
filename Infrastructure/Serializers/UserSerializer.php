@@ -1,9 +1,9 @@
 <?php
 
 require_once __DIR__ . '/../../Domain/Entity/User.php';
-require_once __DIR__ . '/Serializer/SerializerInterface.php';
+require_once __DIR__ . '/../../Domain/Interfaces/Serializers/IUserSerializer.php';
 
-class UserSerializer implements SerializerInterface
+class UserSerializer implements IUserSerializer
 {
     public function deserialize(array $arrayFromDb): ?User
     {

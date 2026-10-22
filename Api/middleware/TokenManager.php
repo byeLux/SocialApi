@@ -6,26 +6,25 @@ class TokenManager
 {
     private function decode($value) : ?array
     {
-        if($value !== null) {
-            return json_decode(base64_decode($value), true);
-        }
+        if($value) return json_decode(base64_decode($value), true);
         return null;
     }
 
     private function encode($array) : ?string
     {
-        if($array !== null) {
-            return base64_encode(json_encode($array));
-        }
+        if($array) return base64_encode(json_encode($array));
         return null;
     }
 
     public function generate(int $userId) : string
     {
-        $payload = $this->encode([
-            'id' => $userId,
-            'exp' => time() + 3600
-        ]);
+        $payload = 
+            $this->encode(
+                [
+                    'id' => $userId,
+                    'exp' => time() + 3600
+                ]
+            );
 
         $signature = hash_hmac('sha512', $payload, 'abc123');
 
@@ -38,16 +37,21 @@ class TokenManager
         if(count($parts) === 2) {
             $signature = $parts[0];
             $payload = $parts[1];
-            if(!hash_equals($signature, hash_hmac('sha512', $payload, 'abc123'))) {
+
+            if(!hash_equals($signature, hash_hmac('sha512', $payload, 'abc123'))) 
+            {
                 return false;
             }
+
             $array = $this->decode($payload);
             $exp = $array['exp'];
-            if(time() > $exp) {
+
+            if(time() > $exp) 
+            {
                 return false;
-            } else {
-                return true;
             }
+
+            return true;
         }
         return false;
     }
