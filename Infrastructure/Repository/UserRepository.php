@@ -1,81 +1,68 @@
 <?php
 
-require_once ROOT_PATH . '/Infrastructure/Persistence/DbConnector.php';
-require_once __DIR__ . '/../../Domain/Entity/User.php';
-require_once __DIR__ . '/../Serializers/UserSerializer.php';
- 
-class UserRepository {
+declare(strict_types=1);
 
-    private UserSerializer $userSerializer;
-    private DbConnector $dbConnector;
-    
-    public function __construct() 
-    {
-        $this->userSerializer = new UserSerializer();
-        $this->dbConnector = DbConnector::getInstance();
+namespace SocialApi\Infrastructure\Repository;
+
+use PDO;
+use PDOException;
+use OverflowException;
+use RuntimeException;
+use SocialApi\Domain\Models\User;
+use SocialApi\Domain\Interfaces\Repositories\IUserRepository;
+use SocialApi\Domain\Interfaces\Serializers\IUserSerializer;
+use SocialApi\Infrastructure\Persistence\DbConnector;
+
+class UserRepository implements IUserRepository
+{
+    public function __construct(
+        private DbConnector $dbConnector,
+        private IUserSerializer $userSerializer
+    ) {
     }
- 
-    public function findOneByUsername(string $username): ?User 
+
+    public function findOneByUsername(string $username): ?User
     {
         $statement = $this->dbConnector->prepare("
-            SELECT 
-                id AS user_id, 
-                password, 
-                role, 
-                username 
-            FROM user 
+            SELECT
+                id AS user_id,
+                password,
+                role,
+                username
+            FROM user
             WHERE username = :username
         ");
 
         $statement->bindParam(':username', $username);
         $statement->execute();
-        
+
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if($result) {
-            $user = $this->userSerializer->deserialize($result);
-            if($user) return $user;
+            return $this->userSerializer->deserialize($result);
         }
         return null;
     }
 
-    public function findOneById(int $id) : ?user
+    public function findOneById(int $id): ?User
     {
         $statement = $this->dbConnector->prepare("
-            SELECT 
-                id AS user_id, 
-                password, 
-                role, 
+            SELECT
+                id AS user_id,
+                password,
+                role,
                 username
-            FROM user 
+            FROM user
             WHERE id = :id
         ");
 
-        $statement->bindParam(':id', $id);
+        $statement->bindParam(':id', $id, PDO::PARAM_INT);
         $statement->execute();
-        
+
         $result = $statement->fetch(PDO::FETCH_ASSOC);
         if($result) {
-            $user = $this->userSerializer->deserialize($result);
-            if($user) return $user;
+            return $this->userSerializer->deserialize($result);
         }
         return null;
-    }
-
-    public function registerNewUser(User $user) 
-    {
-        $username = $user->getUsername();
-        $password = $user->getPassword();
-        $role = $user->getRole();
-
-        $statement = $this->dbConnector->prepare("
-            INSERT INTO user (username, password, role)
-            VALUES (:username, :password, :role)
-        ");
-        $hash = password_hash($password, PASSWORD_BCRYPT);
-        $statement->bindParam(':username', $username);
-        $statement->bindParam(':password', $hash);
-        $statement->bindParam(':role', $role);
-        $statement->execute();
     }
 
     public function createUser(string $username, string $password): User
@@ -84,23 +71,25 @@ class UserRepository {
             INSERT INTO user (username, password, role)
             VALUES (:username, :password, 'user')
         ");
-        $hash = password_hash($password, PASSWORD_BCRYPT);
+
+        // La password arriva gia' come hash: non applicare un secondo hashing.
         $statement->bindParam(':username', $username);
-        $statement->bindParam(':password', $hash);
-        $statement->execute();
+        $statement->bindParam(':password', $password);
 
-        return $this->findOneByUsername($username);
-    }
+        try {
+            $statement->execute();
+        } catch (PDOException $e) {
+            // Il vincolo UNIQUE esistente protegge anche le registrazioni concorrenti.
+            if(($e->errorInfo[1] ?? null) === 1062) {
+                throw new OverflowException('user_already_exists');
+            }
+            throw $e;
+        }
 
-    public function getRoleByUserId(int $id): string
-    {
-        $statement = $this->dbConnector->prepare("
-            SELECT role
-            FROM user 
-            WHERE id = :id
-        ");
-        $statement->bindParam(':id', $id);
-        $statement->execute();
-        return $statement->fetchColumn();
+        $user = $this->findOneByUsername($username);
+        if($user === null) {
+            throw new RuntimeException('User could not be retrieved.');
+        }
+        return $user;
     }
 }

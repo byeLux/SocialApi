@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace SocialApi\Domain\Models;
+
 class User
 {
     public function __construct(
@@ -20,7 +24,7 @@ class User
         return $this->username;
     }
 
-    public function getPassword(): string 
+    public function getPassword(): string
     {
         return $this->password;
     }

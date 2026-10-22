@@ -1,7 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../../Domain/Entity/User.php';
-require_once __DIR__ . '/../../Domain/Interfaces/Serializers/IUserSerializer.php';
+declare(strict_types=1);
+
+namespace SocialApi\Infrastructure\Serializers;
+
+use SocialApi\Domain\Models\User;
+use SocialApi\Domain\Interfaces\Serializers\IUserSerializer;
 
 class UserSerializer implements IUserSerializer
 {
@@ -9,25 +13,21 @@ class UserSerializer implements IUserSerializer
     {
         if(!empty($arrayFromDb)) {
             return new User(
-                $arrayFromDb['user_id'], 
-                $arrayFromDb['username'], 
-                $arrayFromDb['password'], 
+                (int) $arrayFromDb['user_id'],
+                $arrayFromDb['username'],
+                $arrayFromDb['password'] ?? '',
                 $arrayFromDb['role']
-            ); 
+            );
         }
         return null;
     }
-    
-    public function serialize(User $user): ?array
+
+    public function serialize(User $user): array
     {
-        if($user !== null) {
-            return [
-                "id" => $user->getId(),
-                "username" => $user->getUsername(),
-                "password" => $user->getPassword(),
-                "role" => $user->getRole()
-            ];
-        }
-        return null;
+        return [
+            "id" => $user->getId(),
+            "username" => $user->getUsername(),
+            "role" => $user->getRole()
+        ];
     }
 }

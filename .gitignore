@@ -1,2 +1,5 @@
-Api/bash.txt
+/config/.env
+/config/.env.*
+!/config/.env.example
 .DS_Store
+/Api/bash.txt

@@ -1,77 +1,66 @@
 <?php
-define('ROOT_PATH', dirname(__DIR__, 2)); // Api/controller → Api → SocialApi/
 
-require_once ROOT_PATH . '/bootstrap.php';
-require_once ROOT_PATH . '/Infrastructure/Persistence/DbConnector.php';
-require_once ROOT_PATH . '/Api/middleware/TokenManager.php';  // ← nota: 'middleware' minuscolo
-require_once ROOT_PATH . '/Infrastructure/Repository/PostRepository.php';
-require_once ROOT_PATH . '/Infrastructure/Serializers/PostSerializer.php';
-require_once ROOT_PATH . '/Domain/Entity/Post.php';
+declare(strict_types=1);
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+namespace SocialApi\Api\Controllers;
 
-$headers = getallheaders();
-$authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? null;
-if(empty($authHeader)) {
-    http_response_code(401);
-    echo json_encode([
-        'error' => 'missing_auth_headers'
-    ]);
-    exit;
-}
-if(!preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
-    http_response_code(401);
-    echo json_encode([
-        'error' => 'invalid_auth_format'
-    ]);
-    exit;
-}
+use SocialApi\Api\Request;
+use SocialApi\Api\JsonResponse;
+use SocialApi\Application\Managers\PostManager;
+use SocialApi\Domain\Interfaces\Serializers\IPostSerializer;
 
-$token = $matches[1];
-$tokenManager = new TokenManager();
-if(!$tokenManager->validate($token)) {
-    http_response_code(401);
-    echo json_encode([
-        'error' => 'invalid_token'
-    ]);
-    exit;
-}
-
-$page = (int)($_GET['page'] ?? 1);
-
-if($page < 1) {
-    $page = 1;
-}
-
-$postRepository = new PostRepository();
-$postSerializer = new PostSerializer();
-
-try {
-    $posts = ($postRepository->extractPosts($page) ?? []);
-    $postsToEncode = [];
-    foreach($posts as $post) {
-        $postsToEncode[] = $postSerializer->serialize($post);
+class PostController
+{
+    public function __construct(
+        private PostManager $postManager,
+        private IPostSerializer $postSerializer
+    ) {
     }
-    $pagination = [
-        'total_posts' => $postRepository->getTotalPosts(),
-        'total_pages' => $postRepository->extractPages(),
-        'posts_per_page' => $postRepository->getLimit(),
-        'current_page' => $page
-    ];
-    $response = [
-        "pagination" => $pagination,
-        "posts" => $postsToEncode
-    ];
-    http_response_code(200);
-    echo json_encode($response);  
-    exit; 
-} catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'server_error'
-    ]);
-    exit;
+
+    public function getPosts(Request $request): JsonResponse
+    {
+        $page = $request->getPage();
+
+        $result = $this->postManager->getPosts($page);
+        $postsToEncode = [];
+
+        foreach($result['posts'] as $post) {
+            $postsToEncode[] = $this->postSerializer->serialize($post);
+        }
+
+        return new JsonResponse([
+            'pagination' => $result['pagination'],
+            'posts' => $postsToEncode
+        ]);
+    }
+
+    public function createPost(Request $request): JsonResponse
+    {
+        $body = $request->getJson();
+        $content = $request->getString($body, 'content');
+
+        $this->postManager->createPost($request->getUser()->getId(), $content);
+
+        return new JsonResponse(['success' => true], 201);
+    }
+
+    public function updatePost(Request $request, string $id): JsonResponse
+    {
+        $postId = $request->getPositiveInteger($id);
+        $body = $request->getJson();
+
+        $content = $request->getString($body, 'content');
+
+        $this->postManager->updatePost($request->getUser(), $postId, $content);
+
+        return new JsonResponse(['success' => true]);
+    }
+
+    public function deletePost(Request $request, string $id): JsonResponse
+    {
+        $postId = $request->getPositiveInteger($id);
+        $this->postManager->deletePost($request->getUser(), $postId);
+
+        return new JsonResponse(['success' => true]);
+    }
 }

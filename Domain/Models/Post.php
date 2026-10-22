@@ -1,5 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
+namespace SocialApi\Domain\Models;
+
 class Post
 {
     public function __construct(
@@ -26,7 +30,7 @@ class Post
         return $this->content;
     }
 
-    public function getCreationDate(): string 
+    public function getCreationDate(): string
     {
         return $this->creationDate;
     }

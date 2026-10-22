@@ -1,8 +1,13 @@
 <?php
-require_once __DIR__ . '/../../Entity/User.php';
+
+declare(strict_types=1);
+
+namespace SocialApi\Domain\Interfaces\Serializers;
+
+use SocialApi\Domain\Models\User;
 
 interface IUserSerializer
 {
     public function deserialize(array $arrayFromDb): ?User;
-    public function serialize(User $user): ?array;
+    public function serialize(User $user): array;
 }

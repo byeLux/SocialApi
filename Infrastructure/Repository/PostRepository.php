@@ -1,27 +1,28 @@
 <?php
 
-require_once ROOT_PATH . '/Infrastructure/Persistence/DbConnector.php';
-require_once __DIR__ . '/../../Domain/Entity/Post.php';
-require_once __DIR__ . '/../../Domain/Entity/User.php';
-require_once __DIR__ . '/../Serializers/PostSerializer.php';
-require_once __DIR__ . '/../Serializers/UserSerializer.php';
- 
-class PostRepository 
-{
-    private UserSerializer $userSerializer;
-    private PostSerializer $postSerializer;
-    private DbConnector $dbConnector;
+declare(strict_types=1);
 
-    public function __construct() 
-    {
-        $this->userSerializer = new UserSerializer();
-        $this->postSerializer = new PostSerializer();
-        $this->dbConnector = DbConnector::getInstance();
+namespace SocialApi\Infrastructure\Repository;
+
+use PDO;
+use SocialApi\Domain\Models\Post;
+use SocialApi\Domain\Interfaces\Repositories\IPostRepository;
+use SocialApi\Domain\Interfaces\Serializers\IPostSerializer;
+use SocialApi\Domain\Interfaces\Serializers\IUserSerializer;
+use SocialApi\Infrastructure\Persistence\DbConnector;
+
+class PostRepository implements IPostRepository
+{
+    public function __construct(
+        private DbConnector $dbConnector,
+        private IUserSerializer $userSerializer,
+        private IPostSerializer $postSerializer
+    ) {
     }
 
-    public function getLimit(): int 
-    { 
-        return 10; 
+    public function getLimit(): int
+    {
+        return 10;
     }
 
     public function getOffset(int $page): int
@@ -29,25 +30,25 @@ class PostRepository
         return $this->getLimit() * ($page - 1);
     }
 
-    public function getTotalPosts(): int 
+    public function getTotalPosts(): int
     {
         $statement = $this->dbConnector->prepare('
-            SELECT COUNT(*) 
-            FROM post 
+            SELECT COUNT(*)
+            FROM post
             WHERE delete_date IS NULL
         ');
         $statement->execute();
-        return $statement->fetchColumn();
+        return (int) $statement->fetchColumn();
     }
 
     public function extractPages(): int
     {
         return (int) ceil($this->getTotalPosts() / $this->getLimit());
     }
- 
-    public function extractPosts(int $page): ?array
+
+    /** @return Post[] */
+    public function extractPosts(int $page): array
     {
-        $pages  = $this->extractPages();
         $limit  = $this->getLimit();
         $offset = $this->getOffset($page);
 
@@ -55,17 +56,15 @@ class PostRepository
             SELECT
                 u.id AS user_id,
                 u.username,
-                u.password,
                 u.role,
                 p.id AS post_id,
-                p.user_id AS post_user_id,
                 p.content,
                 p.creation_date,
                 p.delete_date
-            FROM post p JOIN user u 
+            FROM post p JOIN user u
             ON p.user_id = u.id
-            WHERE p.delete_date is NULL
-            ORDER BY p.creation_date DESC
+            WHERE p.delete_date IS NULL
+            ORDER BY p.creation_date DESC, p.id DESC
             LIMIT ? OFFSET ?
         ");
 
@@ -74,111 +73,67 @@ class PostRepository
         $statement->execute();
 
         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-
         $posts = array();
 
-        $deleted = null;
-
         foreach($result as $post) {
-            if($post['delete_date'] === null) {
-                $post['delete_date'] = false;
-            }
-            $post['user'] = $this->userSerializer->deserialize($post);
-            array_push($posts, $this->postSerializer->deserialize($post, $this->userSerializer->deserialize($post)));
-            $deleted = true;
+            $user = $this->userSerializer->deserialize($post);
+            $posts[] = $this->postSerializer->deserialize($post, $user);
         }
-        
-        if($posts != null) {
-            return $posts;
-        }
-        return null;
+
+        return $posts;
     }
 
     public function findPostById(int $id): ?Post
     {
         $statement = $this->dbConnector->prepare("
-
-            SELECT 
+            SELECT
                 u.id AS user_id,
                 u.username,
-                u.password,
                 u.role,
                 p.id AS post_id,
-                p.user_id AS post_user_id,
                 p.content,
                 p.creation_date,
                 p.delete_date
-            FROM post p 
+            FROM post p
             JOIN user u ON p.user_id = u.id
-            WHERE p.id = :id
+            WHERE p.id = :id AND p.delete_date IS NULL
         ");
-        $statement->bindParam(':id', $id);
+        $statement->bindParam(':id', $id, PDO::PARAM_INT);
         $statement->execute();
         $result = $statement->fetch(PDO::FETCH_ASSOC);
-        
-        $result['delete_date'] = $result['delete_date'] ?? false;
-        $user = $this->userSerializer->deserialize($result);
- 
-        $post = $this->postSerializer->deserialize($result, $user);
-        if($post != null) {
-            return $post;
+
+        if(!$result) {
+            return null;
         }
-        return null;
+
+        $user = $this->userSerializer->deserialize($result);
+        return $this->postSerializer->deserialize($result, $user);
     }
 
     public function create(int $userId, string $content): void
     {
         $statement = $this->dbConnector->prepare("
-            INSERT INTO `post` (`user_id`, `content`) 
-            VALUES (:user_id, :content);
+            INSERT INTO post (user_id, content)
+            VALUES (:user_id, :content)
         ");
         $statement->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $statement->bindParam(':content', $content);
-        $statement->execute(); 
+        $statement->execute();
     }
 
-    public function delete(Post $post) 
+    public function delete(Post $post): bool
     {
         $id = $post->getId();
-    
+
         $statement = $this->dbConnector->prepare('
             UPDATE post
             SET delete_date = NOW()
-            WHERE id = :id
-        ');
-        $statement->bindParam(':id', $id, PDO::PARAM_INT);
-        $statement->execute();
-                 
-        // get del modello aggiornato
-
-        $statement = $this->dbConnector->prepare('
-            SELECT 
-                u.id AS user_id,
-                u.username,
-                u.password,
-                u.role,
-                p.id AS post_id,
-                p.user_id AS post_user_id,
-                p.content,
-                p.creation_date,
-                p.delete_date
-            FROM post p 
-            JOIN user u ON p.user_id = u.id
-            WHERE p.id = :id
+            WHERE id = :id AND delete_date IS NULL
         ');
         $statement->bindParam(':id', $id, PDO::PARAM_INT);
         $statement->execute();
 
-        $result = $statement->fetch(PDO::FETCH_ASSOC);
-
-        $result['delete_date'] = $result['delete_date'] ?? false;
-        $user = $this->userSerializer->deserialize($result);
-
-        // return modello
-        return $this->postSerializer->deserialize(
-            $result,
-            $user
-        );
+        return $statement->rowCount() === 1;
     }
 
     public function updatePost(int $id, string $content): void
@@ -186,7 +141,7 @@ class PostRepository
         $statement = $this->dbConnector->prepare('
             UPDATE post
             SET content = :content
-            WHERE id = :id
+            WHERE id = :id AND delete_date IS NULL
         ');
         $statement->bindParam(':content', $content);
         $statement->bindParam(':id', $id, PDO::PARAM_INT);

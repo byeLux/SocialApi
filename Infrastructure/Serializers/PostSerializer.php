@@ -1,8 +1,12 @@
 <?php
 
-require_once __DIR__ . '/../../Domain/Entity/Post.php';
-require_once __DIR__ . '/../../Domain/Entity/User.php';
-require_once __DIR__ . '/../../Domain/Interfaces/Serializers/IPostSerializer.php';
+declare(strict_types=1);
+
+namespace SocialApi\Infrastructure\Serializers;
+
+use SocialApi\Domain\Models\Post;
+use SocialApi\Domain\Models\User;
+use SocialApi\Domain\Interfaces\Serializers\IPostSerializer;
 
 class PostSerializer implements IPostSerializer
 {
@@ -10,29 +14,26 @@ class PostSerializer implements IPostSerializer
     {
         if(!empty($arrayFromDb)) {
             return new Post(
-                $arrayFromDb['post_id'], 
-                $user, 
-                $arrayFromDb['content'], 
-                $arrayFromDb['creation_date'], 
-                $arrayFromDb['delete_date']
-            ); 
+                (int) $arrayFromDb['post_id'],
+                $user,
+                $arrayFromDb['content'],
+                $arrayFromDb['creation_date'],
+                $arrayFromDb['delete_date'] !== null
+            );
         }
         return null;
     }
 
-    public function serialize(Post $post): ?array
+    public function serialize(Post $post): array
     {
-        if($post !== null) {
-            return [
-                "id" => $post->getId(),
-                "user_id" => $post->getUser()->getId(),
-                "username" => $post->getUser()->getUsername(),
-                "role" => $post->getUser()->getRole(),
-                "content" => $post->getContent(),
-                "creation_date" => $post->getCreationDate(),
-                "delete_date" => $post->isDeleted()
-            ]; 
-        }
-        return null;
+        return [
+            "id" => $post->getId(),
+            "user_id" => $post->getUser()->getId(),
+            "username" => $post->getUser()->getUsername(),
+            "role" => $post->getUser()->getRole(),
+            "content" => $post->getContent(),
+            "creation_date" => $post->getCreationDate(),
+            "delete_date" => $post->isDeleted()
+        ];
     }
 }
