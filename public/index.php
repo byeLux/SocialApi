@@ -66,7 +66,7 @@ try {
         $authMiddleware = new AuthMiddleware($tokenManager, $userManager);
         $authMiddleware->authenticate($request);
 
-        return new UserController($userManager, $userSerializer);
+        return new UserController($userSerializer);
     };
 
     $createPostController = function (Request $request): PostController {

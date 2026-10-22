@@ -20,16 +20,6 @@ class PostRepository implements IPostRepository
     ) {
     }
 
-    public function getLimit(): int
-    {
-        return 10;
-    }
-
-    public function getOffset(int $page): int
-    {
-        return $this->getLimit() * ($page - 1);
-    }
-
     public function getTotalPosts(): int
     {
         $statement = $this->dbConnector->prepare('
@@ -41,16 +31,10 @@ class PostRepository implements IPostRepository
         return (int) $statement->fetchColumn();
     }
 
-    public function extractPages(): int
-    {
-        return (int) ceil($this->getTotalPosts() / $this->getLimit());
-    }
-
     /** @return Post[] */
-    public function extractPosts(int $page): array
+    public function extractPosts(int $page, int $limit): array
     {
-        $limit  = $this->getLimit();
-        $offset = $this->getOffset($page);
+        $offset = ($page - 1) * $limit;
 
         $statement = $this->dbConnector->prepare("
             SELECT

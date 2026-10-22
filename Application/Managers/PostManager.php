@@ -20,11 +20,11 @@ class PostManager implements IPostManager
 
     public function getPosts(int $page): array
     {
-        $limit = $this->postRepository->getLimit();
+        $limit = $this->postService->getPostsPerPage();
 
         $this->postService->ensureValidPage($page, $limit);
 
-        $posts = $this->postRepository->extractPosts($page);
+        $posts = $this->postRepository->extractPosts($page, $limit);
         $totalPosts = $this->postRepository->getTotalPosts();
         $pagination = [
             'total_posts' => $totalPosts,

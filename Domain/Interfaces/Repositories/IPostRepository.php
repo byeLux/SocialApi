@@ -8,10 +8,9 @@ use SocialApi\Domain\Models\Post;
 
 interface IPostRepository
 {
-    public function getLimit(): int;
     public function getTotalPosts(): int;
     /** @return Post[] */
-    public function extractPosts(int $page): array;
+    public function extractPosts(int $page, int $limit): array;
     public function findPostById(int $id): ?Post;
     public function create(int $userId, string $content): void;
     public function delete(Post $post): bool;

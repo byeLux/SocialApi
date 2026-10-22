@@ -11,6 +11,13 @@ use SocialApi\Domain\Models\User;
 
 class PostService implements IPostService
 {
+    private const POSTS_PER_PAGE = 10;
+
+    public function getPostsPerPage(): int
+    {
+        return self::POSTS_PER_PAGE;
+    }
+
     public function validateContent(string $content): string
     {
         $content = trim($content);

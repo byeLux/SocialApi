@@ -42,7 +42,7 @@ class AuthManager implements IAuthManager
         $user = $this->userRepository->findOneByUsername($username);
         $this->userService->ensureUsernameAvailable($user);
 
-        $hash = password_hash($password, PASSWORD_BCRYPT);
+        $hash = $this->authService->hashPassword($password);
         $this->userRepository->createUser($username, $hash);
     }
 
