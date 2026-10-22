@@ -56,6 +56,23 @@ class TokenManager
         return false;
     }
 
+    public function invalidate(string $token) : bool
+    {
+        try {
+            if($this->validate($token)) {
+                $parts = explode('.', $token);
+                $payload = $parts[1];
+                $array = $this->decode($payload);
+                $array['exp'] = time() - 3600;
+                $newPayload = $this->encode($array);
+            }
+            return true;
+        } catch (TypeError $e) {
+            echo "Type Error: " . $e->getMessage();
+            return false;
+        } 
+    }
+
     public function getId(string $token) : ?int
     {
         try {

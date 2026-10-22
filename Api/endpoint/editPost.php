@@ -8,6 +8,9 @@ require_once ROOT_PATH . '/Infrastructure/Repository/UserRepository.php';
 require_once ROOT_PATH . '/Api/middleware/TokenManager.php';
 
 header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
 if($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

@@ -86,7 +86,7 @@ class UserRepository {
         ");
         $hash = password_hash($password, PASSWORD_BCRYPT);
         $statement->bindParam(':username', $username);
-        $statement->bindParam(':password', $password);
+        $statement->bindParam(':password', $hash);
         $statement->execute();
 
         return $this->findOneByUsername($username);
