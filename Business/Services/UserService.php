@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace SocialApi\Business\Services;
 
+use SocialApi\Domain\Interfaces\Services\IUserService;
 use InvalidArgumentException;
 use OverflowException;
 use SocialApi\Domain\Models\User;
 
-class UserService
+class UserService implements IUserService
 {
     public function validateCredentials(string $username, string $password): void
     {

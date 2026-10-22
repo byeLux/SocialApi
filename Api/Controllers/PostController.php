@@ -6,13 +6,13 @@ namespace SocialApi\Api\Controllers;
 
 use SocialApi\Api\Request;
 use SocialApi\Api\JsonResponse;
-use SocialApi\Application\Managers\PostManager;
+use SocialApi\Domain\Interfaces\Managers\IPostManager;
 use SocialApi\Domain\Interfaces\Serializers\IPostSerializer;
 
 class PostController
 {
     public function __construct(
-        private PostManager $postManager,
+        private IPostManager $postManager,
         private IPostSerializer $postSerializer
     ) {
     }

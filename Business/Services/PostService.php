@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace SocialApi\Business\Services;
 
+use SocialApi\Domain\Interfaces\Services\IPostService;
 use DomainException;
 use InvalidArgumentException;
 use SocialApi\Domain\Models\User;
 
-class PostService
+class PostService implements IPostService
 {
     public function validateContent(string $content): string
     {

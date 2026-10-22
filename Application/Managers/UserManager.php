@@ -4,14 +4,15 @@ declare(strict_types=1);
 
 namespace SocialApi\Application\Managers;
 
-use SocialApi\Business\Services\AuthService;
+use SocialApi\Domain\Interfaces\Managers\IUserManager;
+use SocialApi\Domain\Interfaces\Services\IAuthService;
 use SocialApi\Domain\Models\User;
 use SocialApi\Domain\Interfaces\Repositories\IUserRepository;
 
-class UserManager
+class UserManager implements IUserManager
 {
     public function __construct(
-        private AuthService $authService,
+        private IAuthService $authService,
         private IUserRepository $userRepository
     ) {
     }

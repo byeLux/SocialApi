@@ -6,12 +6,12 @@ namespace SocialApi\Api\Controllers;
 
 use SocialApi\Api\Request;
 use SocialApi\Api\JsonResponse;
-use SocialApi\Application\Managers\AuthManager;
+use SocialApi\Domain\Interfaces\Managers\IAuthManager;
 
 class AuthController
 {
     public function __construct(
-        private AuthManager $authManager
+        private IAuthManager $authManager
     ) {
     }
 

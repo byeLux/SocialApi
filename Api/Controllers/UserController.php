@@ -6,13 +6,13 @@ namespace SocialApi\Api\Controllers;
 
 use SocialApi\Api\Request;
 use SocialApi\Api\JsonResponse;
-use SocialApi\Application\Managers\UserManager;
+use SocialApi\Domain\Interfaces\Managers\IUserManager;
 use SocialApi\Domain\Interfaces\Serializers\IUserSerializer;
 
 class UserController
 {
     public function __construct(
-        private UserManager $userManager,
+        private IUserManager $userManager,
         private IUserSerializer $userSerializer
     ) {
     }

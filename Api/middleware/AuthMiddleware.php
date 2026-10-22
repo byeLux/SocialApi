@@ -6,14 +6,14 @@ namespace SocialApi\Api\middleware;
 
 use RuntimeException;
 use SocialApi\Api\Request;
-use SocialApi\Application\Managers\UserManager;
+use SocialApi\Domain\Interfaces\Managers\IUserManager;
 use SocialApi\Domain\Interfaces\Security\ITokenManager;
 
 class AuthMiddleware
 {
     public function __construct(
         private ITokenManager $tokenManager,
-        private UserManager $userManager
+        private IUserManager $userManager
     ) {
     }
 

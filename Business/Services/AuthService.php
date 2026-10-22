@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace SocialApi\Business\Services;
 
+use SocialApi\Domain\Interfaces\Services\IAuthService;
 use UnexpectedValueException;
 use SocialApi\Domain\Models\User;
 
-class AuthService
+class AuthService implements IAuthService
 {
     public function ensureValidCredentials(?User $user, string $password): void
     {

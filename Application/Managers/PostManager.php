@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace SocialApi\Application\Managers;
 
+use SocialApi\Domain\Interfaces\Managers\IPostManager;
 use OutOfBoundsException;
-use SocialApi\Business\Services\PostService;
+use SocialApi\Domain\Interfaces\Services\IPostService;
 use SocialApi\Domain\Models\User;
 use SocialApi\Domain\Interfaces\Repositories\IPostRepository;
 
-class PostManager
+class PostManager implements IPostManager
 {
     public function __construct(
-        private PostService $postService,
+        private IPostService $postService,
         private IPostRepository $postRepository
     ) {
     }
