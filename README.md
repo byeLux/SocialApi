@@ -56,7 +56,6 @@ config/
     .env (privato)
 public/
     index.php
-    .htaccess
 bootstrap.php
 ```
 
@@ -104,20 +103,24 @@ Dalla radice del progetto:
 php -S 127.0.0.1:8080 -t public public/index.php
 ```
 
-Su Apache, MAMP o XAMPP abilitare mod_rewrite e configurare il DocumentRoot sulla cartella **public**, con AllowOverride All:
+Su Apache di MAMP basta avviare Apache (porta 80) e MySQL, mantenendo il progetto in `C:/MAMP/htdocs/SocialApi`. Non servono `.htaccess`, mod_rewrite, VirtualHost, Alias o modifiche al DocumentRoot.
 
-```apache
-<VirtualHost *:80>
-    ServerName socialapi.local
-    DocumentRoot "C:/MAMP/htdocs/SocialApi/public"
-    <Directory "C:/MAMP/htdocs/SocialApi/public">
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>
-```
+Le richieste puntano direttamente al Composition Root, per esempio `http://localhost/SocialApi/public/index.php?route=/auth/login`. Il parametro `route` deve essere una stringa non vuota che inizi con `/`, senza spazi, caratteri di controllo, `?` o `#`; valori non validi restituiscono 400 `invalid_route`. In assenza di `route` resta attivo il percorso di `REQUEST_URI`, compatibile con il comando `php -S` precedente.
 
-Adattare il percorso per XAMPP, aggiungere `127.0.0.1 socialapi.local` al file hosts e riavviare Apache. `public/.htaccess` inoltra le richieste all'unico ingresso `public/index.php` e conserva l'header Authorization. La radice del repository non deve essere esposta via HTTP.
+Il frontend React Native non è incluso in questo repository. Nel suo `.env` e `.env.example` impostare `API_BASE=http://192.168.1.243/SocialApi/public`, mantenendo Axios e aggiornando soltanto i percorsi HTTP:
+
+| Metodo | Percorso relativo ad API_BASE |
+|---|---|
+| POST | `/index.php?route=/auth/register` |
+| POST | `/index.php?route=/auth/login` |
+| POST | `/index.php?route=/auth/logout` |
+| GET | `/index.php?route=/users/me` |
+| GET | `/index.php?route=/posts&page=${page}` |
+| POST | `/index.php?route=/posts` |
+| PUT | `/index.php?route=/posts/${postId}` |
+| DELETE | `/index.php?route=/posts/${postId}` |
+
+`page` resta un parametro separato da `route`. Metodi HTTP, body JSON e header `Authorization` restano invariati.
 
 ## Route
 

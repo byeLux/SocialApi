@@ -32,7 +32,15 @@ class Request
             $headers['authorization'] = $authorization;
         }
 
-        $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        if(array_key_exists('route', $_GET)) {
+            $path = $_GET['route'];
+            if(!is_string($path) || $path === '' || $path[0] !== '/'
+                || preg_match('/[\x00-\x20\x7F?#]/', $path)) {
+                throw new InvalidArgumentException('invalid_route');
+            }
+        } else {
+            $path = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH);
+        }
 
         return new Request(
             strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET'),
