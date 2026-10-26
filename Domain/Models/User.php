@@ -4,13 +4,15 @@ declare(strict_types=1);
 
 namespace SocialApi\Domain\Models;
 
+use SocialApi\Domain\Enums\UserRole;
+
 class User
 {
     public function __construct(
         private int $id,
         private string $username,
         private string $password,
-        private string $role
+        private UserRole $role
     ) {
     }
 
@@ -29,7 +31,7 @@ class User
         return $this->password;
     }
 
-    public function getRole(): string
+    public function getRole(): UserRole
     {
         return $this->role;
     }

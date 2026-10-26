@@ -48,7 +48,7 @@ class PostManager implements IPostManager
 
     public function updatePost(User $user, int $postId, string $content): void
     {
-        $this->postService->authorizeMutation($user);
+        $this->postService->ensureCanUpdate($user);
         $content = $this->postService->validateContent($content);
 
         $post = $this->postRepository->findPostById($postId);
@@ -66,7 +66,7 @@ class PostManager implements IPostManager
 
     public function deletePost(User $user, int $postId): void
     {
-        $this->postService->authorizeMutation($user);
+        $this->postService->ensureCanDelete($user);
 
         $post = $this->postRepository->findPostById($postId);
 

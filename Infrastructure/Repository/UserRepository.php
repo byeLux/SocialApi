@@ -9,6 +9,7 @@ use PDOException;
 use OverflowException;
 use RuntimeException;
 use SocialApi\Domain\Models\User;
+use SocialApi\Domain\Enums\UserRole;
 use SocialApi\Domain\Interfaces\Repositories\IUserRepository;
 use SocialApi\Domain\Interfaces\Serializers\IUserSerializer;
 use SocialApi\Infrastructure\Persistence\DbConnector;
@@ -68,11 +69,10 @@ class UserRepository implements IUserRepository
     public function createUser(string $username, string $password): User
     {
         $statement = $this->dbConnector->prepare("
-            INSERT INTO user (username, password, role)
-            VALUES (:username, :password, 'user')
+            INSERT INTO user (username, password)
+            VALUES (:username, :password)
         ");
 
-        // La password arriva gia' come hash: non applicare un secondo hashing.
         $statement->bindParam(':username', $username);
         $statement->bindParam(':password', $password);
 

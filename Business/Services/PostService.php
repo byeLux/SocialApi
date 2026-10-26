@@ -8,6 +8,7 @@ use SocialApi\Domain\Interfaces\Services\IPostService;
 use DomainException;
 use InvalidArgumentException;
 use SocialApi\Domain\Models\User;
+use SocialApi\Domain\Enums\UserRole;
 
 class PostService implements IPostService
 {
@@ -29,9 +30,16 @@ class PostService implements IPostService
         return $content;
     }
 
-    public function authorizeMutation(User $user): void
+    public function ensureCanUpdate(User $user): void
     {
-        if(!in_array($user->getRole(), ['mod', 'admin'], true)) {
+        if(!in_array($user->getRole(), [UserRole::Mod, UserRole::Admin], true)) {
+            throw new DomainException('forbidden');
+        }
+    }
+
+    public function ensureCanDelete(User $user): void
+    {
+        if($user->getRole() !== UserRole::Admin) {
             throw new DomainException('forbidden');
         }
     }

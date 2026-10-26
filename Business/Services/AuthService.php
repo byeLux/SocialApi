@@ -7,6 +7,7 @@ namespace SocialApi\Business\Services;
 use SocialApi\Domain\Interfaces\Services\IAuthService;
 use UnexpectedValueException;
 use SocialApi\Domain\Models\User;
+use SocialApi\Domain\Enums\UserRole;
 
 class AuthService implements IAuthService
 {
@@ -24,14 +25,14 @@ class AuthService implements IAuthService
         }
 
         if(!password_verify($password, $hash) || $user === null
-            || !in_array($user->getRole(), ['user', 'mod', 'admin'], true)) {
+            || !in_array($user->getRole(), UserRole::cases(), true)) {
             throw new UnexpectedValueException('invalid_credentials');
         }
     }
 
     public function ensureAuthenticatedUser(?User $user): void
     {
-        if($user === null || !in_array($user->getRole(), ['user', 'mod', 'admin'], true)) {
+        if($user === null || !in_array($user->getRole(), UserRole::cases(), true)) {
             throw new UnexpectedValueException('invalid_token');
         }
     }

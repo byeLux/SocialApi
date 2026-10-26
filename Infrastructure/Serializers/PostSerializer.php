@@ -30,7 +30,7 @@ class PostSerializer implements IPostSerializer
             "id" => $post->getId(),
             "user_id" => $post->getUser()->getId(),
             "username" => $post->getUser()->getUsername(),
-            "role" => $post->getUser()->getRole(),
+            "role" => $post->getUser()->getRole()->value,
             "content" => $post->getContent(),
             "creation_date" => $post->getCreationDate(),
             "delete_date" => $post->isDeleted()
